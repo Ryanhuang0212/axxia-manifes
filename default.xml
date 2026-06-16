@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="local" fetch=".." />
+  <remote name="yocto" fetch="https://git.yoctoproject.org/git" />
+  <remote name="oe" fetch="https://github.com/openembedded" />
+  
+  <default revision="master" remote="local" sync-j="4" />
+  
+  <project name="poky" remote="yocto" revision="scarthgap" />
+  <project name="meta-openembedded" remote="oe" revision="scarthgap" />
+  <project name="meta-virtualization" remote="yocto" revision="scarthgap" />
+  <project name="meta-intel" remote="yocto" revision="scarthgap" />
+  
+  <project name="meta-intel-axxia" path="meta-intel-axxia" />
+  <project name="axxia-build-env" path="." />
+</manifest>
