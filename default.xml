@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <remote name="local" fetch="file:///home/senao/ryan_home/axxia_build/axxia_support/yocto_build/" />
+  <remote name="local" fetch="https://github.com/Ryanhuang0212/" />
   <remote name="yocto" fetch="https://git.yoctoproject.org/git" />
   <remote name="oe" fetch="https://github.com/openembedded" />
   
@@ -11,7 +11,7 @@
   <project name="meta-virtualization" remote="yocto" revision="scarthgap" />
   <project name="meta-intel" remote="yocto" revision="scarthgap" />
   
-  <!-- Internal local repos -->
+  <!-- Internal local repos fetched from GitHub -->
   <project name="meta-intel-axxia" path="meta-intel-axxia" />
   <project name="axxia-build-env" path="." />
 </manifest>
