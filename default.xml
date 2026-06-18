@@ -3,13 +3,17 @@
   <remote name="local" fetch="https://github.com/Ryanhuang0212/" />
   <remote name="yocto" fetch="https://git.yoctoproject.org/git" />
   <remote name="oe" fetch="https://github.com/openembedded" />
+  <remote name="kraj" fetch="https://github.com/kraj" />
   
   <default revision="master" remote="local" sync-j="4" />
   
+  <!-- Open Source Yocto Layers -->
   <project name="poky" remote="yocto" revision="scarthgap" />
   <project name="meta-openembedded" remote="oe" revision="scarthgap" />
   <project name="meta-virtualization" remote="yocto" revision="scarthgap" />
   <project name="meta-intel" remote="yocto" revision="scarthgap" />
+  <project name="meta-security" remote="yocto" revision="scarthgap" />
+  <project name="meta-clang" remote="kraj" revision="scarthgap" />
   
   <!-- Internal local repos fetched from GitHub -->
   <project name="meta-intel-axxia" path="meta-intel-axxia" />
