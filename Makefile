@@ -294,69 +294,69 @@ all: fs
 .PHONY: $(LAYERS)
 
 $(TOP)/meta-intel-axxia:
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(META_AXXIA_URL)) \
-		$(call checkout_rev,$@,$(META_AXXIA_REL)) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(META_AXXIA_URL))
+	@$(call checkout_rev,$@,$(META_AXXIA_REL))
+endif
 
 $(TOP)/meta-openembedded: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(OE_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(OE_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/meta-virtualization: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(VIRT_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(VIRT_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/meta-intel: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(INTEL_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(INTEL_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/poky: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(POKY_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(POKY_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/meta-security: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(SECURITY_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(SECURITY_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/meta-clang: $(TOP)/meta-intel-axxia
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(CLANG_URL)) \
-		$(call checkout_layer_from_file,$@) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(CLANG_URL))
+	@$(call checkout_layer_from_file,$@)
+endif
 
 $(TOP)/meta-intel-axxia-updates: $(TOP)/meta-intel-axxia-updates
 ifeq ($(INCLUDE_UPDATES),true)
-	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
-		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
-	else \
-		$(call populate,$@,$(META_UPDATES_URL)) \
-		$(call checkout_rev_main,$@,$(META_AXXIA_REL)) \
-	fi
+ifeq ($(USE_REPO_SYNC),true)
+	@echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"
+else
+	@$(call populate,$@,$(META_UPDATES_URL))
+	@$(call checkout_rev_main,$@,$(META_AXXIA_REL))
+endif
 endif
 
 # create bitbake build
