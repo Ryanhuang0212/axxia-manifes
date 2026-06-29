@@ -36,7 +36,7 @@ INCLUDE_RDK_TOOLS       ?= true
 INCLUDE_SIMICSFS        ?= true
 LINUX_VERSION           ?= 6.6
 PARALLEL_MAKE           := "-j $(BB_NUMBER_THREADS)"
-META_AXXIA_REL          ?= grr_rdk_2509.01_s_66
+META_AXXIA_REL          ?= master
 RDK_KLM_VERSION         ?= grr_2509.01
 RDK_TOOLS_VERSION       ?= grr_2509.01
 RDK_LTTNG_ENABLE        ?= false
@@ -46,6 +46,7 @@ RDK_MODULES_STATIC      ?= false
 RDK_SRC_PATH            ?= $(TOP)
 RDK_TOOLS_ARCHIVE       ?= rdk_user_src.tgz
 USE_RDK_REPO            ?= false
+USE_REPO_SYNC           ?= false
 RDK_REPO                ?= https://github.com/intel-collab/networking.wireless.ran.bts-rdk-releases
 SIMICS_FILE             ?= $(TOP)/simics*
 SIMICS_VERSION          ?= 6.0.166
@@ -74,7 +75,7 @@ endif
 
 RM = $(Q)rm -f
 
-META_AXXIA_URL   ?= https://github.com/axxia/meta-intel-axxia.git
+META_AXXIA_URL   ?= https://github.com/Ryanhuang0212/meta-intel-axxia.git
 LAYERS           += $(TOP)/meta-intel-axxia
 
 POKY_URL          = https://git.yoctoproject.org/poky
@@ -204,8 +205,12 @@ help:
 	echo "META_AXXIA_REL=<tag-name>: Optional:" ; \
         echo "    Tag-name in META-AXXIA repo" ; \
 	echo "    Defaults to current release"; \
+	echo "USE_REPO_SYNC=[true|false]: Optional: Default = false:"; \
+	echo "    When set to 'true', skip all layer clone/checkout steps."; \
+	echo "    Use this after 'repo sync' — layers are already in place."; \
+	echo "    Recommended SOP: repo sync && make build USE_REPO_SYNC=true && bitbake <image>"; \
 	echo "META_AXXIA_URL=<URL-for-meta-intel-axxia>: Optional:"; \
-	echo "    Defaults to https://github.com/axxia/meta-intel-axxia.git"; \
+	echo "    Defaults to https://github.com/Ryanhuang0212/meta-intel-axxia.git (fork)"; \
 	echo "META_AXXIA_DEPENDENCY=<File which contains commit ids of meta layers>: Optional:"; \
 	echo "    Defaults to <current-dir>/meta-intel-axxia/DEPENDENCIES.distro"; \
 	echo "INCLUDE_RDK: Optional: Default = true:" ; \
@@ -289,37 +294,69 @@ all: fs
 .PHONY: $(LAYERS)
 
 $(TOP)/meta-intel-axxia:
-	$(call  populate,$@,$(META_AXXIA_URL))
-	$(call  checkout_rev,$@,$(META_AXXIA_REL))
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(META_AXXIA_URL)) \
+		$(call checkout_rev,$@,$(META_AXXIA_REL)) \
+	fi
 
 $(TOP)/meta-openembedded: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(OE_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(OE_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/meta-virtualization: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(VIRT_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(VIRT_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/meta-intel: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(INTEL_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(INTEL_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/poky: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(POKY_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(POKY_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/meta-security: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(SECURITY_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(SECURITY_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/meta-clang: $(TOP)/meta-intel-axxia
-	$(call  populate,$@,$(CLANG_URL))
-	$(call  checkout_layer_from_file,$@)
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(CLANG_URL)) \
+		$(call checkout_layer_from_file,$@) \
+	fi
 
 $(TOP)/meta-intel-axxia-updates: $(TOP)/meta-intel-axxia-updates
 ifeq ($(INCLUDE_UPDATES),true)
-	$(call  populate,$@,$(META_UPDATES_URL))
-	$(call  checkout_rev_main,$@,$(META_AXXIA_REL))
+	@if [ "$(USE_REPO_SYNC)" = "true" ]; then \
+		echo "[USE_REPO_SYNC=true] Skipping $@ — managed by repo sync"; \
+	else \
+		$(call populate,$@,$(META_UPDATES_URL)) \
+		$(call checkout_rev_main,$@,$(META_AXXIA_REL)) \
+	fi
 endif
 
 # create bitbake build
