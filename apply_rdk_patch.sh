@@ -1,52 +1,66 @@
 #!/bin/bash
-echo "🚀 開始套用 RDK-Tools 破關補丁 (包含 Firmware 相容性)..."
+# apply_rdk_patch.sh — 建置前置作業檢查
+# 功能：確認 RDK archive 存在並建立 symlink 至 workspace root
+# 注意：此 script 不修改任何 recipe 檔案
 
-RECIPE_DIR="meta-intel-axxia/meta-intel-rdk/recipes-extended/rdk-tools"
-mkdir -p ${RECIPE_DIR}/files/
+set -e
 
-if [ -f "rdk_user_src.tgz" ]; then
-    cp rdk_user_src.tgz ${RECIPE_DIR}/files/
-    echo "✅ 成功複製 rdk_user_src.tgz"
+WORKSPACE_ROOT="$(cd "$(dirname "$0")" && pwd)"
+SEARCH_DIRS=(
+    "$WORKSPACE_ROOT"
+    "$(dirname "$WORKSPACE_ROOT")"   # parent dir
+    "/home/senao/ryan_home"
+)
+
+KLM_ARCHIVE="rdk_klm_src.tgz"
+TOOLS_ARCHIVE="rdk_user_src.tgz"
+
+find_archive() {
+    local name="$1"
+    for dir in "${SEARCH_DIRS[@]}"; do
+        if [ -f "$dir/$name" ]; then
+            echo "$dir/$name"
+            return 0
+        fi
+    done
+    return 1
+}
+
+echo "=== RDK Build Prerequisite Check ==="
+
+# 找 KLM archive
+if KLM_PATH=$(find_archive "$KLM_ARCHIVE"); then
+    echo "[OK] KLM archive: $KLM_PATH"
+    if [ "$KLM_PATH" != "$WORKSPACE_ROOT/$KLM_ARCHIVE" ] && \
+       [ ! -L "$WORKSPACE_ROOT/$KLM_ARCHIVE" ] && \
+       [ ! -f "$WORKSPACE_ROOT/$KLM_ARCHIVE" ]; then
+        ln -sf "$KLM_PATH" "$WORKSPACE_ROOT/$KLM_ARCHIVE"
+        echo "     -> symlink created at workspace root"
+    fi
 else
-    echo "❌ 找不到 rdk_user_src.tgz，請確保它在這個目錄下！"
+    echo "[MISSING] $KLM_ARCHIVE not found in:"
+    for dir in "${SEARCH_DIRS[@]}"; do echo "     $dir"; done
+    echo "  Please place $KLM_ARCHIVE in the workspace root and re-run."
     exit 1
 fi
 
-cat << 'RECIPE_EOF' > ${RECIPE_DIR}/rdk-tools.bb
-SUMMARY = "Intel RDK tools pre-built"
-LICENSE = "GPL-2.0-or-later"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0-or-later;md5=fed54355545ffd980b814dab4a3b312c"
+# 找 Tools archive
+if TOOLS_PATH=$(find_archive "$TOOLS_ARCHIVE"); then
+    echo "[OK] Tools archive: $TOOLS_PATH"
+    if [ "$TOOLS_PATH" != "$WORKSPACE_ROOT/$TOOLS_ARCHIVE" ] && \
+       [ ! -L "$WORKSPACE_ROOT/$TOOLS_ARCHIVE" ] && \
+       [ ! -f "$WORKSPACE_ROOT/$TOOLS_ARCHIVE" ]; then
+        ln -sf "$TOOLS_PATH" "$WORKSPACE_ROOT/$TOOLS_ARCHIVE"
+        echo "     -> symlink created at workspace root"
+    fi
+else
+    echo "[MISSING] $TOOLS_ARCHIVE not found in:"
+    for dir in "${SEARCH_DIRS[@]}"; do echo "     $dir"; done
+    echo "  Please place $TOOLS_ARCHIVE in the workspace root and re-run."
+    exit 1
+fi
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI = "file://rdk_user_src.tgz"
-BB_STRICT_CHECKSUM = "0"
-S = "${WORKDIR}/rdk"
-INSANE_SKIP:${PN} = "already-stripped ldflags dev-deps"
-
-# 完美複製官方的 firmware 套件宣告 (空頭支票合法化)
-PACKAGES += "rdk-firmware"
-ALLOW_EMPTY:rdk-firmware = "1"
-
-do_compile() {
-    :
-}
-
-do_install() {
-    install -d ${D}${bindir}
-    install -d ${D}${nonarch_base_libdir}/modules
-    install -d ${D}${sysconfdir}/modules-load.d
-    # 預先建好 firmware 資料夾給系統看
-    install -d ${D}${nonarch_base_libdir}/firmware/intel
-
-    [ -f ${S}/eeupdate64e ] && install -m 0755 ${S}/eeupdate64e ${D}${bindir}/
-    [ -f ${S}/eltt2 ] && install -m 0755 ${S}/eltt2 ${D}${bindir}/
-    [ -f ${S}/iqvlinux.ko ] && install -m 0644 ${S}/iqvlinux.ko ${D}${nonarch_base_libdir}/modules/iqvlinux.ko
-    
-    echo "iqvlinux" > ${D}${sysconfdir}/modules-load.d/iqvlinux.conf
-}
-
-FILES:rdk-firmware = "${nonarch_base_libdir}/firmware"
-FILES:${PN} = "${bindir} ${nonarch_base_libdir}/modules/iqvlinux.ko ${sysconfdir}/modules-load.d/iqvlinux.conf"
-RECIPE_EOF
-
-echo "✅ Recipe 覆蓋完成！特洛伊木馬與 Firmware 設定已就緒！"
+echo ""
+echo "=== All prerequisites OK ==="
+echo "Next step: make fs META_AXXIA_REL=grr_rdk_2509.01_s_66"
+echo "  or:      source poky/oe-init-build-env axxia && bitbake axxia-image-dev"
