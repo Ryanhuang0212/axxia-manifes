@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="local" fetch="https://github.com/Ryanhuang0212/" />
-  <remote name="yocto" fetch="https://git.yoctoproject.org/git" />
+  <remote name="yocto" fetch="https://git.yoctoproject.org" />
   <remote name="oe" fetch="https://github.com/openembedded" />
   <remote name="kraj" fetch="https://github.com/kraj" />
 
